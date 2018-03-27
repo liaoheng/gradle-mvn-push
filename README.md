@@ -1,4 +1,4 @@
-gradle-mvn-push
+gradle-mvn-push-android
 ===============
 
 See this blog post for more context on this 'library': [http://chris.banes.me/2013/08/27/pushing-aars-to-maven-central/](http://chris.banes.me/2013/08/27/pushing-aars-to-maven-central/).
@@ -42,6 +42,7 @@ POM_LICENCE_URL=http://www.apache.org/licenses/LICENSE-2.0.txt
 POM_LICENCE_DIST=repo
 POM_DEVELOPER_ID=chrisbanes
 POM_DEVELOPER_NAME=Chris Banes
+POM_DEVELOPER_EMAIL=xxx@xxx.com // add by itlgl
 ```
 
 The `VERSION_NAME` value is important. If it contains the keyword `SNAPSHOT` then the build will upload to the snapshot server, if not then to the release server.
@@ -60,7 +61,7 @@ POM_PACKAGING=aar
 Add the following at the end of each `build.gradle` that you wish to upload:
 
 ```groovy
-apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
+apply from: 'https://raw.github.com/itlgl/gradle-mvn-push/master/gradle-mvn-push-android.gradle'
 ```
 
 ### 6. Build and Push
