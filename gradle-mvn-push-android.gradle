@@ -39,6 +39,10 @@ def getRepositoryPassword() {
     return hasProperty('NEXUS_PASSWORD') ? NEXUS_PASSWORD : ""
 }
 
+def getJavaDocFileEncoding() {
+    return hasProperty('JAVADOC_FILE_ENCODING') ? JAVADOC_FILE_ENCODING : "UTF-8"
+}
+
 afterEvaluate { project ->
     uploadArchives {
         repositories {
@@ -87,15 +91,6 @@ afterEvaluate { project ->
             }
         }
     }
-
-    // https://blog.csdn.net/wantnrun/article/details/49779333
-    javadoc {
-        options {
-            encoding "UTF-8"
-            charSet 'UTF-8'
-            author true
-        }
-    }
     
     signing {
         required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
@@ -104,6 +99,8 @@ afterEvaluate { project ->
 
     task androidJavadocs(type: Javadoc) {
         source = android.sourceSets.main.java.srcDirs
+        // https://www.2cto.com/kf/201701/582969.html
+        options.encoding = getJavaDocFileEncoding()
         classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
     }
 
