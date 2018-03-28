@@ -31,7 +31,7 @@ task androidJavadocs(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
     // https://www.2cto.com/kf/201701/582969.html
     // 加上encoding，如果文件中出现中文注释也可以生成javadoc,默认使用UTF-8
-    options.encoding = getJavaDocFileEncoding()
+    options.encoding = "UTF-8"
     options.charSet = "UTF-8"
     options.author = true
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))

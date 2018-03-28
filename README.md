@@ -1,4 +1,4 @@
-gradle-mvn-push-android
+gradle-mvn-push
 ===============
 
 See this blog post for more context on this 'library': [http://chris.banes.me/2013/08/27/pushing-aars-to-maven-central/](http://chris.banes.me/2013/08/27/pushing-aars-to-maven-central/).
@@ -60,8 +60,14 @@ POM_PACKAGING=aar
 
 Add the following at the end of each `build.gradle` that you wish to upload:
 
+#### For Android Library
 ```groovy
 apply from: 'https://raw.github.com/itlgl/gradle-mvn-push/master/gradle-mvn-push-android.gradle'
+```
+
+#### For JAVA Library
+```groovy
+apply from: 'https://raw.github.com/itlgl/gradle-mvn-push/master/gradle-mvn-push-java.gradle'
 ```
 
 ### 6. Build and Push
@@ -71,7 +77,14 @@ You can now build and push:
 ```bash
 $ gradle clean build uploadArchives
 ```
-	
+
+### javadoc "编码GBK的不可映射字符" error
+
+Add properties `JAVADOC_FILE_ENCODING` in gradle.properties file:
+```groovy
+JAVADOC_FILE_ENCODING=<your java source file encoding,default utf-8>
+```
+
 ### Other Properties
 
 There are other properties which can be set:
