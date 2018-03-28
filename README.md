@@ -85,7 +85,7 @@ Add properties `JAVADOC_FILE_ENCODING` in gradle.properties file:
 JAVADOC_FILE_ENCODING=<your java source file encoding,default utf-8>
 ```
 
-### Upload to Jcenter or Local
+### 8. Upload to Jcenter or Local
 
 There are other properties which can be set:
 
