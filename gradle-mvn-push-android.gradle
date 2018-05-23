@@ -18,7 +18,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 def isReleaseBuild() {
-    return VERSION_NAME.contains("SNAPSHOT") == false
+    return !VERSION_NAME.contains("SNAPSHOT")
 }
 
 def getReleaseRepositoryUrl() {
@@ -82,7 +82,6 @@ afterEvaluate { project ->
 
                     developers {
                         developer {
-                            id POM_DEVELOPER_ID
                             name POM_DEVELOPER_NAME
                             email POM_DEVELOPER_EMAIL
                         }
@@ -91,7 +90,7 @@ afterEvaluate { project ->
             }
         }
     }
-    
+
     signing {
         required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
         sign configurations.archives
@@ -102,6 +101,9 @@ afterEvaluate { project ->
         // https://www.2cto.com/kf/201701/582969.html
         options.encoding = getJavaDocFileEncoding()
         classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+        exclude '**/BuildConfig.java'
+        exclude '**/R.java'
+        failOnError false
     }
 
     task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
