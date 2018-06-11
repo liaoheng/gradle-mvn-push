@@ -43,6 +43,10 @@ def getJavaDocFileEncoding() {
     return hasProperty('JAVADOC_FILE_ENCODING') ? JAVADOC_FILE_ENCODING : "UTF-8"
 }
 
+def isJavaDoc(){
+    return hasProperty('ENABLE_JAVA_DOC') ? ENABLE_JAVA_DOC : false
+}
+
 afterEvaluate { project ->
     uploadArchives {
         repositories {
@@ -118,6 +122,8 @@ afterEvaluate { project ->
 
     artifacts {
         archives androidSourcesJar
-        archives androidJavadocsJar
+        if (isJavaDoc()){
+            archives androidJavadocsJar
+        }
     }
 }
