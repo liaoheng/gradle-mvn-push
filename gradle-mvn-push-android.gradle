@@ -47,6 +47,10 @@ def isJavaDoc(){
     return hasProperty('ENABLE_JAVA_DOC') ? ENABLE_JAVA_DOC : false
 }
 
+def isJavaSource(){
+    return hasProperty('ENABLE_JAVA_SOURCE') ? ENABLE_JAVA_SOURCE : true
+}
+
 afterEvaluate { project ->
     uploadArchives {
         repositories {
@@ -121,7 +125,9 @@ afterEvaluate { project ->
     }
 
     artifacts {
-        archives androidSourcesJar
+		if (isJavaSource()){
+			archives androidSourcesJar
+		}
         if (isJavaDoc()){
             archives androidJavadocsJar
         }
