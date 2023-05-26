@@ -18,7 +18,7 @@
 apply plugin: 'maven-publish'
 
 def isJavaDoc(){
-    return hasProperty('ENABLE_JAVA_DOC') ? ENABLE_JAVA_DOC : true
+    return hasProperty('ENABLE_JAVA_DOC') ? ENABLE_JAVA_DOC : false
 }
 
 def isJavaSource(){
