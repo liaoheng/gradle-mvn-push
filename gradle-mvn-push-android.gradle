@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Chris Banes
+ * Copyright 2023 liaoheng
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,123 +13,84 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-apply plugin: 'maven'
-apply plugin: 'signing'
-
-def isReleaseBuild() {
-    return !VERSION_NAME.contains("SNAPSHOT")
-}
-
-def getReleaseRepositoryUrl() {
-    return hasProperty('RELEASE_REPOSITORY_URL') ? RELEASE_REPOSITORY_URL
-            : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-}
-
-def getSnapshotRepositoryUrl() {
-    return hasProperty('SNAPSHOT_REPOSITORY_URL') ? SNAPSHOT_REPOSITORY_URL
-            : "https://oss.sonatype.org/content/repositories/snapshots/"
-}
-
-def getRepositoryUsername() {
-    return hasProperty('NEXUS_USERNAME') ? NEXUS_USERNAME : ""
-}
-
-def getRepositoryPassword() {
-    return hasProperty('NEXUS_PASSWORD') ? NEXUS_PASSWORD : ""
-}
-
-def getJavaDocFileEncoding() {
-    return hasProperty('JAVADOC_FILE_ENCODING') ? JAVADOC_FILE_ENCODING : "UTF-8"
-}
+ 
+//https://docs.gradle.org/current/userguide/publishing_maven.html
+apply plugin: 'maven-publish'
 
 def isJavaDoc(){
-    return hasProperty('ENABLE_JAVA_DOC') ? ENABLE_JAVA_DOC : false
+    return hasProperty('ENABLE_JAVA_DOC') ? ENABLE_JAVA_DOC : true
 }
 
 def isJavaSource(){
     return hasProperty('ENABLE_JAVA_SOURCE') ? ENABLE_JAVA_SOURCE : true
 }
 
-afterEvaluate { project ->
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-                pom.groupId = GROUP
-                pom.artifactId = POM_ARTIFACT_ID
-                pom.version = VERSION_NAME
-
-                repository(url: getReleaseRepositoryUrl()) {
-                    authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
-                }
-                snapshotRepository(url: getSnapshotRepositoryUrl()) {
-                    authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
-                }
-
-                pom.project {
-                    name POM_NAME
-                    packaging POM_PACKAGING
-                    description POM_DESCRIPTION
-                    url POM_URL
-
-                    scm {
-                        url POM_SCM_URL
-                        connection POM_SCM_CONNECTION
-                        developerConnection POM_SCM_DEV_CONNECTION
-                    }
-
-                    licenses {
-                        license {
-                            name POM_LICENCE_NAME
-                            url POM_LICENCE_URL
-                            distribution POM_LICENCE_DIST
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            name POM_DEVELOPER_NAME
-                            email POM_DEVELOPER_EMAIL
-                        }
-                    }
-                }
-            }
+//https://stackoverflow.com/questions/35435173/prevent-javadoc-from-failing-gradle-build
+//https://stackoverflow.com/questions/26874498/publish-an-android-library-to-maven-with-aar-and-sources-jar
+task androidJavadocs(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    android.libraryVariants.all { variant ->
+        if (variant.name == 'release') {
+            owner.classpath += variant.javaCompileProvider.get().classpath
         }
     }
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+    options.addStringOption('charSet', 'UTF-8')
+    exclude '**/R.html', '**/R.*.html', '**/index.html', "**/R.java", '**/BuildConfig.java'
+    failOnError false
+}
 
-    signing {
-        required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
-        sign configurations.archives
-    }
+task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
+    archiveClassifier.set('javadoc')
+    from androidJavadocs.destinationDir
+}
 
-    task androidJavadocs(type: Javadoc) {
-        source = android.sourceSets.main.java.srcDirs
-        // https://www.2cto.com/kf/201701/582969.html
-        options.encoding = getJavaDocFileEncoding()
-        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-        exclude '**/BuildConfig.java'
-        exclude '**/R.java'
-        failOnError false
-    }
+task androidSourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.srcDirs
+}
 
-    task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
-        classifier = 'javadoc'
-        from androidJavadocs.destinationDir
-    }
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = GROUP
+            artifactId = POM_ARTIFACT_ID
+            version = VERSION_NAME
 
-    task androidSourcesJar(type: Jar) {
-        classifier = 'sources'
-        from android.sourceSets.main.java.sourceFiles
-    }
+            afterEvaluate {
+                from components.release
+            }
+            if (isJavaSource()){
+                artifact(androidSourcesJar)
+            }
+            if (isJavaDoc()){
+                artifact(androidJavadocsJar)
+            }
 
-    artifacts {
-		if (isJavaSource()){
-			archives androidSourcesJar
-		}
-        if (isJavaDoc()){
-            archives androidJavadocsJar
+            pom {
+                name = POM_NAME
+                description = POM_DESCRIPTION
+                url = POM_URL
+                licenses {
+                    license {
+                        name = POM_LICENCE_NAME
+                        url = POM_LICENCE_URL
+                    }
+                }
+                developers {
+                    developer {
+                        name = POM_DEVELOPER_NAME
+                        email = POM_DEVELOPER_EMAIL
+                    }
+                }
+                scm {
+                    connection = POM_SCM_CONNECTION
+                    developerConnection = POM_SCM_DEV_CONNECTION
+                    url = POM_SCM_URL
+                }
+            }
         }
     }
 }
