@@ -1,10 +1,12 @@
 gradle-mvn-push
 ===============
 
-See this blog post for more context on this 'library': [http://chris.banes.me/2013/08/27/pushing-aars-to-maven-central/](http://chris.banes.me/2013/08/27/pushing-aars-to-maven-central/).
+See this blog post for more context on this `library`: [http://chris.banes.me/2013/08/27/pushing-aars-to-maven-central/](http://chris.banes.me/2013/08/27/pushing-aars-to-maven-central/).
 
 
 ## Usage
+
+> Required gradle > 7.3.3
 
 ### 1. Have a working Gradle build
 This is upto you.
@@ -62,12 +64,12 @@ Add the following at the end of each `build.gradle` that you wish to upload:
 
 #### For Android Library
 ```groovy
-apply from: 'https://raw.github.com/itlgl/gradle-mvn-push/master/gradle-mvn-push-android.gradle'
+apply from: 'https://raw.githubusercontent.com/liaoheng/gradle-mvn-push/master/gradle-mvn-push-android.gradle'
 ```
 
-#### For JAVA Library
+#### *For JAVA Library (old)*
 ```groovy
-apply from: 'https://raw.github.com/itlgl/gradle-mvn-push/master/gradle-mvn-push-java.gradle'
+apply from: 'https://raw.githubusercontent.com/liaoheng/gradle-mvn-push/master/gradle-mvn-push-java.gradle'
 ```
 
 ### 6. Build and Push
@@ -75,17 +77,10 @@ apply from: 'https://raw.github.com/itlgl/gradle-mvn-push/master/gradle-mvn-push
 You can now build and push:
 
 ```bash
-$ gradle clean build uploadArchives
+$ gradle clean build publish
 ```
 
-### 7. javadoc "编码GBK的不可映射字符" error
-
-Add properties `JAVADOC_FILE_ENCODING` in gradle.properties file:
-```groovy
-JAVADOC_FILE_ENCODING=<your java source file encoding,default utf-8>
-```
-
-### 8. Upload to Jcenter or Local
+### 7. Upload to Jcenter or Local
 
 There are other properties which can be set:
 
@@ -104,13 +99,13 @@ SNAPSHOT_REPOSITORY_URL=https://api.bintray.com/maven/itlgl/maven/byteutil/;publ
 #### Upload to Local
 for example:
 ```
-RELEASE_REPOSITORY_URL = file://C:/Users/ligl01/.m2/repository
-SNAPSHOT_REPOSITORY_URL = file://C:/Users/ligl01/.m2/repository
+$ gradle clean build publishToMavenLocal
 ```
 
 ## License
 
     Copyright 2013 Chris Banes
+    Copyright 2023 Liao Heng
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

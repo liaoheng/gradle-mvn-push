@@ -1,5 +1,6 @@
 /*
- * Copyright 2023 liaoheng
+ * Copyright 2013 Chris Banes
+ * Copyright 2023 Liao Heng
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 //https://docs.gradle.org/current/userguide/publishing_maven.html
+//https://docs.gradle.org/7.3.3/userguide/signing_plugin.html#signing_plugin
+//required gradle > 7.3.3
 apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+def isReleaseVersion() {
+    return !VERSION_NAME.endsWith('SNAPSHOT')
+}
 
 def isJavaDoc(){
     return hasProperty('ENABLE_JAVA_DOC') ? ENABLE_JAVA_DOC : false
@@ -23,6 +31,16 @@ def isJavaDoc(){
 
 def isJavaSource(){
     return hasProperty('ENABLE_JAVA_SOURCE') ? ENABLE_JAVA_SOURCE : true
+}
+
+def getReleaseRepositoryUrl() {
+    return hasProperty('RELEASE_REPOSITORY_URL') ? RELEASE_REPOSITORY_URL
+            : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+}
+
+def getSnapshotRepositoryUrl() {
+    return hasProperty('SNAPSHOT_REPOSITORY_URL') ? SNAPSHOT_REPOSITORY_URL
+            : "https://oss.sonatype.org/content/repositories/snapshots/"
 }
 
 //https://stackoverflow.com/questions/35435173/prevent-javadoc-from-failing-gradle-build
@@ -53,8 +71,17 @@ task androidSourcesJar(type: Jar) {
 }
 
 publishing {
+    repositories {
+        maven {
+            url = isReleaseVersion() ? getReleaseRepositoryUrl() : getSnapshotRepositoryUrl()
+            credentials {
+                username = NEXUS_USERNAME
+                password = NEXUS_PASSWORD
+            }
+        }
+    }
     publications {
-        release(MavenPublication) {
+        uploadArchives(MavenPublication) {
             groupId = GROUP
             artifactId = POM_ARTIFACT_ID
             version = VERSION_NAME
@@ -93,4 +120,13 @@ publishing {
             }
         }
     }
+}
+
+//snapshots skip signing
+tasks.withType(Sign) {
+    onlyIf { isReleaseVersion() }
+}
+
+signing {
+    sign publishing.publications.uploadArchives
 }
