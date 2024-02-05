@@ -60,16 +60,15 @@ POM_PACKAGING=aar
 
 ### 5. Call the script from each sub-modules build.gradle
 
-Add the following at the end of each `build.gradle` that you wish to upload:
+Add the following of each `build.gradle` that you wish to upload:
 
-#### For Android Library
 ```groovy
+android {
+   publishing {
+      singleVariant("release")
+   }
+}
 apply from: 'https://raw.githubusercontent.com/liaoheng/gradle-mvn-push/master/gradle-mvn-push-android.gradle'
-```
-
-#### *For JAVA Library (old)*
-```groovy
-apply from: 'https://raw.githubusercontent.com/liaoheng/gradle-mvn-push/master/gradle-mvn-push-java.gradle'
 ```
 
 ### 6. Build and Push
@@ -105,7 +104,7 @@ $ gradle clean build publishToMavenLocal
 ## License
 
     Copyright 2013 Chris Banes
-    Copyright 2023 Liao Heng
+    Copyright 2024 liaoheng
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
